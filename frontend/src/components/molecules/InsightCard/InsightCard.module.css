@@ -1,0 +1,29 @@
+.card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--info);
+  border-radius: var(--radius-sm);
+}
+.alerta {
+  border-left-color: var(--danger);
+}
+.destaque {
+  border-left-color: var(--xp);
+}
+.sequencia {
+  border-left-color: var(--accent);
+}
+.icon {
+  font-size: 1.2rem;
+}
+.title {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.message {
+  font-size: 0.88rem;
+  color: var(--text-soft);
+}

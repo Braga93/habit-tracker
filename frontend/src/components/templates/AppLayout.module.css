@@ -1,0 +1,10 @@
+.main {
+  width: min(100% - 2 * var(--gutter), var(--container));
+  margin-inline: auto;
+  padding: 28px 0 48px;
+}
+@media (max-width: 760px) {
+  .main {
+    padding-bottom: 96px;
+  }
+}

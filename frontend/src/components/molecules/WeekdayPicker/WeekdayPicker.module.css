@@ -1,0 +1,28 @@
+.fieldset {
+  border: none;
+}
+.legend {
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.day {
+  padding: 8px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.day[aria-pressed='true'] {
+  color: #fff;
+  background: var(--accent-strong);
+  border-color: var(--accent);
+}

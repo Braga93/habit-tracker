@@ -1,0 +1,17 @@
+.card {
+  padding: clamp(16px, 2.5vw, 24px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+}

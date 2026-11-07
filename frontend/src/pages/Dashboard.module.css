@@ -1,0 +1,38 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.heatmap {
+  grid-column: 1 / -1;
+}
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.more {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c4b5fd;
+}
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

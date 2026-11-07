@@ -1,0 +1,13 @@
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}

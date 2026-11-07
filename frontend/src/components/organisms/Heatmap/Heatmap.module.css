@@ -1,0 +1,53 @@
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.grid {
+  --cell: clamp(12px, 1.6vw, 18px);
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, var(--cell));
+  grid-auto-columns: var(--cell);
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.cell,
+.empty {
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+}
+.cell {
+  background: var(--surface-2);
+}
+.cell[data-level='1'] {
+  background: rgba(139, 92, 246, 0.3);
+}
+.cell[data-level='2'] {
+  background: rgba(139, 92, 246, 0.5);
+}
+.cell[data-level='3'] {
+  background: rgba(139, 92, 246, 0.75);
+}
+.cell[data-level='4'] {
+  background: var(--accent);
+}
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend .cell {
+  width: 12px;
+  height: 12px;
+}

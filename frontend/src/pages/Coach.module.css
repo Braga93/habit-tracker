@@ -1,0 +1,21 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 16px;
+  align-items: start;
+}
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.note {
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

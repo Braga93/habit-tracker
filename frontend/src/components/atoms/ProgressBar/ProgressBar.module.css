@@ -1,0 +1,26 @@
+.track {
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: 999px;
+}
+.sm {
+  height: 6px;
+}
+.md {
+  height: 10px;
+}
+.fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.6s var(--ease);
+}
+.accent {
+  background: linear-gradient(90deg, var(--accent-strong), var(--accent));
+}
+.xp {
+  background: linear-gradient(90deg, #d99b1e, var(--xp));
+}
+.success {
+  background: var(--success);
+}

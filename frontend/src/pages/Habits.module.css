@@ -1,0 +1,8 @@
+.form {
+  margin-bottom: 20px;
+}
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 16px;
+}

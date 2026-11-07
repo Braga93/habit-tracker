@@ -1,116 +1,187 @@
-# Habit Tracker AI
+# Habit Tracker
 
-Aplicativo web para criar hábitos e mantê-los, com XP, níveis, medalhas e um coach de inteligência artificial. Foi feito inteiramente em Python, com o framework [Reflex](https://reflex.dev/).
+Aplicação full-stack para criar hábitos no ciclo **gatilho → rotina → recompensa**, ganhar XP e medalhas a cada check-in e receber dicas de um coach que analisa os seus dados.
 
-A ideia de cada hábito segue o ciclo **gatilho → rotina → recompensa**: você define o que dispara o hábito, o que faz e como se recompensa.
+**[Abrir a demonstração](https://braga93.github.io/habit-tracker/)**: roda direto no navegador, com uma conta de visitante e dados de exemplo.
+
+[![Testes](https://github.com/Braga93/habit-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/Braga93/habit-tracker/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+
+![Painel do Habit Tracker](docs/screenshots/painel.png)
 
 ## Funcionalidades
 
-- **Hábitos com gatilho, rotina e recompensa**, com frequência e meta de dias
-- **XP e níveis:** cada check-in rende XP, e o nível sobe conforme o XP acumulado
-- **Sequências (streaks)** global e por hábito, com bônus de XP em marcos
-- **7 medalhas** desbloqueadas automaticamente: First Step, 3-Day Streak, 7-Day Streak, 30-Day Streak, Century Club, Level 5 e Habit Master
-- **Mapa de atividade (heatmap)** com os dias em que você cumpriu seus hábitos
-- **Coach de IA:** chat com respostas em tempo real, análise de padrões dos seus hábitos e previsão de risco de abandono
-- **Login e cadastro**, com a senha guardada em hash (veja [Segurança](#segurança))
+- **Hábitos no ciclo do hábito:** cada um tem gatilho, rotina e recompensa, ícone, dificuldade e os dias da semana em que vale.
+- **Check-in diário:** um por hábito por dia, que pode ser desfeito no mesmo dia (o XP volta).
+- **XP e níveis:** a dificuldade define o XP (10, 20 ou 30), e há bônus ao completar 7, 14, 30, 60 e 100 dias seguidos.
+- **Sequências justas:** contam só os dias agendados e não zeram enquanto o dia de hoje ainda está em aberto.
+- **8 medalhas:** de criar o primeiro hábito a completar 500 check-ins.
+- **Mapa de atividade:** as últimas 12 semanas em um calendário de calor.
+- **Coach:** aponta hábitos em risco, o hábito mais forte e o dia da semana mais produtivo. Com uma chave da OpenAI (ou um modelo local pelo Ollama), também conversa usando IA; sem chave, responde pelas regras.
+- **Contas protegidas:** senha com bcrypt e sessão com token JWT.
+- **Responsivo:** do celular ao monitor ultrawide, com barra de navegação inferior no celular.
 
-## Telas
-
-| Rota | Tela |
-|---|---|
-| `/` | Início |
-| `/login` e `/register` | Entrar e criar conta |
-| `/dashboard` | Painel com XP, sequência e hábitos do dia |
-| `/habits` | Gerenciar hábitos |
-| `/coach` | Conversa com o coach de IA |
-| `/profile` | Perfil, nível e medalhas |
+| Hábitos | Coach | Perfil |
+|---|---|---|
+| ![Hábitos](docs/screenshots/habitos.png) | ![Coach](docs/screenshots/coach.png) | ![Perfil](docs/screenshots/perfil.png) |
 
 ## Tecnologias
 
-- Python 3.11
-- [Reflex](https://reflex.dev/) 0.7 (interface e backend, tudo em Python)
-- SQLModel e SQLite
-- API da OpenAI (modelo padrão `gpt-4o-mini`), ou qualquer serviço compatível, como o Ollama local
-- Docker e Docker Compose
+| Camada | Tecnologias |
+|---|---|
+| API | Python 3.12, FastAPI, SQLModel, SQLite, bcrypt, PyJWT, httpx |
+| Interface | React 18, Vite, React Router, CSS Modules |
+| Qualidade | pytest, Vitest, Ruff, GitHub Actions |
+| Execução | Docker e Docker Compose, GitHub Pages (demonstração) |
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+    UI[React + Vite] -- "HTTP + JWT" --> API[FastAPI]
+    API --> Regras[Regras de negócio<br/>XP, sequências, medalhas, coach]
+    Regras --> DB[(SQLite)]
+    API -. "opcional" .-> IA[OpenAI / Ollama]
+    UI -. "modo demo" .-> Local[(localStorage)]
+```
+
+- **Regras de negócio puras** (`backend/app/domain`): níveis, sequências, taxa de conclusão, medalhas e o coach são funções sem banco de dados, testadas isoladamente.
+- **Serviços** (`backend/app/services`): aplicam as regras com o banco e a autenticação.
+- **Interface em atomic design** (`frontend/src/components`): átomos, moléculas, organismos e templates.
+- **Uma interface de API, duas implementações** (`frontend/src/api`): o cliente HTTP fala com o FastAPI; o cliente de demonstração aplica as mesmas regras no navegador. As telas não sabem de qual dos dois os dados vêm.
+
+O planejamento completo, com o diagnóstico da versão anterior e as decisões tomadas, está em [`docs/PLANO.md`](docs/PLANO.md).
 
 ## Como rodar
 
 ### Pré-requisitos
 
 - Python 3.11 ou superior
-- Node.js 20 ou superior (o Reflex usa para montar a interface)
-- Git
+- Node.js 20 ou superior
 
-### Rodando localmente
+### API
 
 ```bash
-git clone https://github.com/Braga93/habit-tracker.git
-cd habit-tracker
-
+cd backend
 python -m venv .venv
 source .venv/bin/activate        # no Windows: .venv\Scripts\activate
-
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 cp .env.example .env             # no Windows: copy .env.example .env
-
-reflex init
-reflex run
+uvicorn app.main:app --reload
 ```
 
-Abra `http://localhost:3000`. O banco de dados (`habit_tracker.db`) é criado sozinho na primeira execução.
+A API fica em `http://localhost:8000`, e a documentação interativa (Swagger) em `http://localhost:8000/docs`.
+
+### Interface
+
+Em outro terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abra `http://localhost:5173`. As chamadas para `/api` são encaminhadas para a API automaticamente.
 
 ### Com Docker
 
 ```bash
-cp .env.example .env
 docker compose up --build
 ```
 
-A interface fica em `http://localhost:3000` e o backend em `http://localhost:8000`.
+A interface fica em `http://localhost:8080` e a API em `http://localhost:8000`.
 
-### Coach de IA
+### Modo demonstração
 
-Para usar o coach, coloque a sua chave no arquivo `.env`:
-
-```text
-OPENAI_API_KEY=sua_chave_aqui
+```bash
+cd frontend
+npm run build:demo
 ```
 
-Sem a chave, o resto do aplicativo funciona normalmente. Só o coach de IA fica indisponível.
+Gera uma versão que não precisa da API: tudo roda no navegador, com a conta `visitante` / `demonstracao`. É a versão publicada no GitHub Pages.
+
+## Variáveis de ambiente
+
+Ficam no arquivo `backend/.env` (modelo em `backend/.env.example`).
 
 | Variável | Descrição | Padrão |
 |---|---|---|
-| `OPENAI_API_KEY` | Chave da API | vazia |
+| `DATABASE_URL` | Endereço do banco | `sqlite:///./habit_tracker.db` |
+| `SECRET_KEY` | Chave que assina os tokens. **Troque em produção** | valor de desenvolvimento |
+| `TOKEN_EXPIRE_MINUTES` | Validade do login | `10080` (7 dias) |
+| `CORS_ORIGINS` | Endereços autorizados a chamar a API | `http://localhost:5173` |
+| `OPENAI_API_KEY` | Chave para o coach conversar com IA (opcional) | vazia |
+| `OPENAI_BASE_URL` | Endereço da API de IA (use o do Ollama para rodar local) | `https://api.openai.com/v1` |
 | `LLM_MODEL` | Modelo usado pelo coach | `gpt-4o-mini` |
-| `OPENAI_BASE_URL` | Endereço da API (troque para usar o Ollama) | `https://api.openai.com/v1` |
+
+## API
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/api/auth/register` | cria a conta e devolve o token |
+| POST | `/api/auth/login` | entra com usuário ou e-mail |
+| GET | `/api/auth/me` | dados do usuário logado |
+| GET | `/api/habits` | hábitos ativos com sequência e taxa de conclusão |
+| POST | `/api/habits` | cria um hábito |
+| PATCH | `/api/habits/{id}` | edita um hábito |
+| DELETE | `/api/habits/{id}` | arquiva um hábito (o histórico fica) |
+| POST | `/api/habits/{id}/checkins` | check-in de hoje, com XP, bônus e medalhas |
+| DELETE | `/api/habits/{id}/checkins/today` | desfaz o check-in de hoje |
+| GET | `/api/progress` | nível, sequência, mapa de atividade e medalhas |
+| GET | `/api/coach/insights` | análise dos hábitos |
+| POST | `/api/coach/chat` | conversa com o coach |
+
+## Testes
+
+```bash
+cd backend && pytest
+cd frontend && npm test
+```
+
+- **Backend:** 42 testes. Cobrem as regras de nível, sequência, conclusão e medalhas, o coach, e as rotas com um banco em memória: cadastro, senha criptografada, acesso sem token, check-in duplicado, desfazer, bônus de 7 dias e isolamento entre usuários.
+- **Frontend:** 22 testes. Cobrem as mesmas regras na versão em JavaScript e a API de demonstração.
+
+A cada push, o GitHub Actions roda o lint, os testes e o build.
 
 ## Estrutura
 
 ```text
 habit-tracker/
-├── habit_tracker/
-│   ├── habit_tracker.py     montagem do app, rotas e criação das tabelas
-│   ├── pages/               as telas
-│   ├── components/          barra de XP, cartão de hábito, medalhas, chat, mapa de atividade
-│   ├── state/               estado das telas (login, hábitos, gamificação, IA)
-│   ├── services/            regras de negócio (hábitos, XP e medalhas, coach de IA)
-│   ├── models/              tabelas do banco (usuário, hábito, registro, medalha)
-│   └── styles/              tema visual
-├── docs/PLANO.md            plano de arquitetura do projeto (em inglês)
-├── rxconfig.py              configuração do Reflex
-├── Dockerfile
+├── backend/
+│   ├── app/
+│   │   ├── domain/        regras puras: níveis, sequências, medalhas, coach
+│   │   ├── services/      regras com banco: hábitos, progresso, XP, coach
+│   │   ├── routers/       rotas da API
+│   │   ├── models.py      tabelas
+│   │   ├── schemas.py     validação de entrada e saída
+│   │   ├── security.py    bcrypt e JWT
+│   │   └── main.py
+│   └── tests/
+├── frontend/
+│   └── src/
+│       ├── api/           cliente HTTP e cliente de demonstração
+│       ├── domain/        as mesmas regras, para o modo demo
+│       ├── components/    atoms, molecules, organisms, templates
+│       ├── pages/
+│       ├── context/       sessão e avisos
+│       └── hooks/
+├── docs/
 ├── docker-compose.yml
-├── requirements.txt
-└── .env.example             modelo das variáveis de ambiente
+└── .github/workflows/     testes e publicação da demonstração
 ```
 
-## Segurança
+## Próximos passos
 
-- O arquivo `.env` (com a sua chave de API) e o banco de dados local ficam fora do Git, no `.gitignore`.
-- Nunca envie chaves ou o arquivo `.db` para o repositório.
-- As senhas são guardadas com SHA-256 simples, sem sal. Isso serve para um projeto de estudo, mas não para produção: em um uso real, o ideal é trocar por `bcrypt` ou `argon2`.
+- Migrações de banco com Alembic
+- Lembretes por e-mail ou notificação
+- Exportar o histórico em CSV
+- Testes de interface ponta a ponta com Playwright na integração contínua
 
 ## Autor
 
-**Eduardo Braga**, estudante de desenvolvimento full-stack em Fortaleza, CE.
+**Eduardo Braga**, desenvolvedor full-stack em Fortaleza, CE.
 [LinkedIn](https://www.linkedin.com/in/eduardo-braga-6131b9253/) · [GitHub](https://github.com/Braga93)

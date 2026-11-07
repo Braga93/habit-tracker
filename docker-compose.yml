@@ -1,59 +1,22 @@
-version: "3.9"
-
 services:
-  # ── Main Habit Tracker AI application ─────────────────────────────────────
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: habit-tracker-ai
-    restart: unless-stopped
-    ports:
-      - "3000:3000"   # Reflex frontend (Next.js)
-      - "8000:8000"   # Reflex backend (FastAPI)
-    volumes:
-      - habit_data:/app/data         # Persist SQLite DB
-      - ./.env:/app/.env:ro          # Inject secrets at runtime
+  api:
+    build: ./backend
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}
-      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
-      - APP_ENV=production
-    networks:
-      - habit_net
-    depends_on:
-      - redis
-
-  # ── Redis (optional: for session caching / rate limiting) ─────────────────
-  redis:
-    image: redis:7-alpine
-    container_name: habit-tracker-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
     volumes:
-      - redis_data:/data
-    networks:
-      - habit_net
+      - dados:/data
+    ports:
+      - "8000:8000"
 
-  # ── Ollama (optional: local LLM instead of OpenAI) ────────────────────────
-  # Uncomment to run a fully local AI coach with no API keys
-  # ollama:
-  #   image: ollama/ollama:latest
-  #   container_name: habit-tracker-ollama
-  #   restart: unless-stopped
-  #   ports:
-  #     - "11434:11434"
-  #   volumes:
-  #     - ollama_models:/root/.ollama
-  #   networks:
-  #     - habit_net
+  web:
+    build: ./frontend
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
 
 volumes:
-  habit_data:
-  redis_data:
-  # ollama_models:
-
-networks:
-  habit_net:
-    driver: bridge
+  dados:

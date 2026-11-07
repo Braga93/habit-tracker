@@ -1,8 +1,0 @@
-.git
-.venv
-.env
-.web
-.states
-__pycache__
-*.pyc
-*.db

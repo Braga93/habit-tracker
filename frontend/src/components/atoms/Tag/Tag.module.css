@@ -1,0 +1,30 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.neutral {
+  color: var(--text-soft);
+  background: var(--surface-2);
+}
+.accent {
+  color: #c4b5fd;
+  background: var(--accent-soft);
+}
+.xp {
+  color: var(--xp);
+  background: var(--xp-soft);
+}
+.success {
+  color: var(--success);
+  background: var(--success-soft);
+}
+.danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+}

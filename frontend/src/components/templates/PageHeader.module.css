@@ -1,0 +1,15 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+}
+.subtitle {
+  color: var(--text-soft);
+}
